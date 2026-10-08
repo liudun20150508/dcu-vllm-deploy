@@ -7,6 +7,20 @@
 > wheel（das185）、或专有 RDMA 插件。这些一律通过脚本从官方源拉取，或向集群
 > 管理员索取。详见 [支持与限制](#支持与限制)。
 
+## 文档导航
+
+| 文档 | 看什么 |
+|---|---|
+| [`README.md`](README.md)（本文件） | 4 模型状态、前置条件、节点数、快速开始、缺口 |
+| [`SUPPORTED_HARDWARE.md`](SUPPORTED_HARDWARE.md) | DCU 架构 × 模型 条件矩阵、自检清单 |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | 从零部署的分步手册（4 模型 × 两集群） |
+| [`docs/GOTCHAS.md`](docs/GOTCHAS.md) | 30+ 条踩坑记录（按症状查） |
+| [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) | 缺口清单（还差什么、谁来解决） |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | 如何适配新硬件/新模型、贡献约定 |
+
+**第一次来？** 先跑 `./deploy.sh list` 看模型状态，再读 `docs/DEPLOYMENT.md` 的
+「部署前准备」。要接手适配，直接看 `CONTRIBUTING.md` 第五节「最希望被解决的缺口」。
+
 ---
 
 ## 一、支持哪些模型
@@ -117,10 +131,12 @@ bash deploy.sh smoke --model flashbase       # 单机 8 卡冒烟（无 Slurm）
 ```
 dcu-vllm-deploy/
 ├── deploy.sh                        # 统一 CLI 入口（list/serve/smoke/download/install）
-├── README.md                        # 本文件
+├── README.md                        # 项目总览 + 文档导航
 ├── SUPPORTED_HARDWARE.md            # DCU 架构 × 模型 条件矩阵（详细）
+├── CONTRIBUTING.md                  # 适配新硬件/新模型贡献指南
 ├── LICENSE                          # MIT
 ├── docs/
+│   ├── DEPLOYMENT.md                # 从零部署分步手册（4 模型 × 两集群）
 │   ├── GOTCHAS.md                   # 30+ 条踩坑记录（脱敏）
 │   └── KNOWN_ISSUES.md              # 缺口清单（还差什么）
 ├── scripts/
