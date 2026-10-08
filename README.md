@@ -144,6 +144,7 @@ dcu-vllm-deploy/
 ├── scripts/
 │   ├── download/                    # 模型权重下载（hf-mirror / ModelScope）
 │   ├── install/                     # 环境安装 + 补丁 + 探针
+│   ├── verify/                      # 前置条件验证（check_hw + rccl_allreduce）
 │   └── deploy/
 │       ├── slurm/                   # Slurm 多机多卡 serve
 │       └── smoke/                   # 单机 8 卡冒烟

@@ -38,17 +38,43 @@ MoE 算子缺口，本地无快速路径，要等厂商补丁。
 **1. DCU 硬件（gfx936）**
 海光 BW（C-3000），gfx936，80 CU，64 GB，warpSize 64。真机量过，是本框架主测目标。
 
+> **验证代码**：`scripts/verify/check_hw.sh`
+> **实测输出**（验收报告）：
+> ```
+> gcnArchName : gfx936:sramecc+:xnack-
+> multiProcessor: 80
+> warpSize      : 64
+> totalGlobalMem: 64.0 GB
+> ```
+
 **3. das185 软件栈**
 torch 2.10.0+das.opt1.dtk2604 / aiter 0.1.5+das185 / vllm_hcu 0.21.0+das.dtk2604 /
 triton 3.6.0 / tilelang 0.1.9 / flash_mla 1.2.0。全部装好、版本锁定。
+
+> **验证代码**：`scripts/install/das185_check.py`
+> **实测输出**：
+> ```
+> torch 2.10.0  hip 6.3.26113  avail True  dev 8
+> OK  vllm / vllm_hcu / aiter / triton / tilelang / flash_mla
+> ```
 
 **4. 适配补丁**
 `scripts/install/das185_patch.py` 四个补丁（aiter shuffle / triton flags /
 gfx936 MXFP4 门槛 / fused_moe 签名）已应用，幂等可重跑。
 
+> **验证代码**：`scripts/install/das185_patch.py`（幂等，重跑输出 `已存在，跳过` 即已应用）
+
 **5. RCCL 通信**
 all_reduce 正确性通过；单机 8 卡 256MB busbw **109 GB/s**，跨机 shca 四平面
 16 卡 **68.4 GB/s**（2→4 节点掉 19%、4→8 持平）。**通信层不是瓶颈。**
+
+> **验证代码**：`scripts/verify/rccl_allreduce.py` + `scripts/verify/rccl_allreduce.sh`
+> **实测输出**：
+> ```
+> [rank 0] ALLREDUCE OK sum=8.0 ws=8
+> [bw] all_reduce 256MB  busbw=109.22 GB/s   （单机 8 卡）
+> ```
+> 用法：`bash scripts/verify/rccl_allreduce.sh --np 8`（单机）/ `sbatch scripts/verify/rccl_allreduce.sh`（跨机）
 
 ### ⚠️ 部分满足 / 未核实
 
