@@ -1,0 +1,97 @@
+--- aiter_ops_shuffle.py.orig	2026-09-29 10:05:38.000000000 +0800
++++ <SITE-PACKAGES>/aiter/ops/shuffle.py	2026-09-29 21:45:27.000000000 +0800
+@@ -415,3 +415,94 @@
+         packed_zeros |= (zeros_packed[:, :, i].to(torch.int8) << (i * bits))
+     
+     return packed_weights, packed_zeros
++
++
++# ============================================================================
++# [中科曙光 patch 2026-09-29] A16W4 (MXFP4) MoE weight/scale shuffle helpers.
++#
++# 原因：vllm_hcu 0.21.0+das 2608132222 的 AITER_MXFP4_BF16 路径调用
++#   aiter.ops.shuffle.shuffle_weight_a16w4 / shuffle_scale_a16w4，
++#   但本 aiter 构建 (0.1.5+das185 2608131714) 的 shuffle.py 没带这两个函数，
++#   导致 convert_weight_to_mxfp4_moe_kernel_format 里
++#   ImportError: cannot import name 'shuffle_weight_a16w4'。
++# 移植自上游 ROCm/aiter aiter/ops/shuffle.py（对应 shuffle_weight 的
++#   is_guinterleave 分支与 shuffle_scale 的 is_guinterleave 分支）。
++# 备份：本目录 shuffle.py.bak-* 与 验收/patches/aiter_ops_shuffle.py.orig
++# ============================================================================
++
++def shuffle_weight_a16w4(src: torch.Tensor, NLane: int, gate_up: bool) -> torch.Tensor:
++    """Shuffle packed fp4x2 MoE weight into A16W4 CK/MoE layout.
++
++    Input:  ``(E, N, K_pk)``, dtype ``torch.float4_e2m1fn_x2`` (1 byte/elem),
++            ``K_pk == K/2`` packed bytes. ``gate_up=True`` expects the w13
++            gate/up rows in GGUU order and interleaves them per-tile (GUGU),
++            matching the fused MoE kernel's GateMode.INTERLEAVE.
++    """
++    x_type = src.dtype
++    x = src.view(torch.uint8)
++    experts_cnt, N, K_pk = x.shape
++    KPack = 16
++    if gate_up:
++        N = N // 2
++    KLane = 64 // NLane
++    N0 = N // NLane
++    K0 = K_pk // (KLane * KPack)
++    if gate_up:
++        x_ = x.view(experts_cnt, 2, N0, NLane, K0, KLane, KPack)
++        x_ = x_.permute(0, 2, 1, 4, 5, 3, 6).contiguous()
++    else:
++        x_ = x.view(experts_cnt, N0, NLane, K0, KLane, KPack)
++        x_ = x_.permute(0, 1, 3, 4, 2, 5).contiguous()
++    x_ = x_.view(*x.shape).contiguous().view(x_type)
++    x_.is_shuffled = True
++    return x_
++
++
++def shuffle_scale_a16w4(
++    src: torch.Tensor, experts_cnt: int, gate_up: bool
++) -> torch.Tensor:
++    """Shuffle the per-expert MXFP4 block scale into the A16W4 kernel layout.
++
++    Input: ``(experts_cnt * N, K/32)`` 2D e8m0 scale (flattened experts).
++    Output has the same shape; ``gate_up=True`` matches the w13 weight shuffle.
++    """
++    if src is None:
++        return src
++    if src.dtype == torch.float32:
++        return src
++    assert src.ndim == 2, "scale must be a 2D tensor"
++
++    n_experts, k_ = src.shape
++    if k_ % 8 != 0:
++        k_padded = (k_ + 7) // 8 * 8
++        scale_padded = torch.empty(
++            n_experts, k_padded, dtype=src.dtype, device=src.device
++        )
++        if scale_padded.element_size() == 1:
++            scale_padded.view(torch.uint8).fill_(0x7F)
++        else:
++            scale_padded.fill_(1)
++        scale_padded[:, :k_] = src
++        src = scale_padded
++        k_ = k_padded
++
++    n_ = n_experts // experts_cnt
++    # MXFP4 constants.  The scale layout packs two 4-scale dwords per tile-K
++    # group, so shapes with K//32 not divisible by 8 are padded above.
++    K_Pack = 2
++    N_Pack = 2
++    N_Lane = 16
++    K_Lane = 64 // N_Lane  # 4
++
++    K1 = k_ // K_Pack // K_Lane
++    N1 = n_ // N_Lane // N_Pack  # n_ // 32
++    real_k = 32 * k_ * K_Pack * K_Lane  # 1x32 quant
++    assert real_k >= 256, f"K {real_k} must be larger than Tile_K(256)"
++
++    if gate_up:
++        shfl_scale = src.view(experts_cnt, N_Pack, N1, N_Lane, K1, K_Pack, K_Lane)
++        shfl_scale = shfl_scale.permute(0, 2, 4, 6, 3, 5, 1).contiguous()
++    else:
++        shfl_scale = src.view(experts_cnt, N1, N_Pack, N_Lane, K1, K_Pack, K_Lane)
++        shfl_scale = shfl_scale.permute(0, 1, 4, 6, 3, 5, 2).contiguous()
++    return shfl_scale.view(*src.shape).contiguous()

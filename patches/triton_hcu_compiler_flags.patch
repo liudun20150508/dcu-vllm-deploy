@@ -1,0 +1,24 @@
+--- <SITE-PACKAGES>/triton/backends/hcu/compiler.py.bak-20260929230658	2026-09-29 08:56:51.000000000 +0800
++++ <SITE-PACKAGES>/triton/backends/hcu/compiler.py	2026-09-29 23:07:38.000000000 +0800
+@@ -472,7 +472,9 @@
+             # The deployed PMD/gem5 clang (1464499b74) predates this flag and rejects
+             # it as an unknown argument, aborting the amdgcn stage. Skip it on PMD;
+             # the s_barrier waitcnt behavior is not modeled by PMD anyway.
+-            if not os.environ.get("PMD_PATH"):
++            # [中科曙光 patch 2026-09-29] 本集群 dtk-26.04 的 aillvm (dtk-llvm-6.3.3)
++            # 同样不认识该 flag（与 PMD 同因），直接跳过。
++            if not os.environ.get("PMD_PATH") and False:
+                 options_args.append("-mllvm=-amdgpu-disable-backoff-barrier=false")
+ 
+ 
+@@ -499,7 +501,9 @@
+             else:
+                 raise ValueError(f"Unsupported scheduling latency: {options.sched_latency}")
+ 
+-        if options.enable_fp_fusion:
++        # [中科曙光 patch 2026-09-29] dtk-26.04 aillvm (dtk-llvm-6.3.3) 无 -fp-fuse
++        # 后端选项，传了会被 clang 拒绝导致 HSACOError；这里按 aillvm 能力跳过。
++        if options.enable_fp_fusion and False:
+             options_args.extend(["-mllvm=-fp-fuse=fast"])
+ 
+         if not options.misched_regpressure:
