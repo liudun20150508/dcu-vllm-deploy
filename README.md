@@ -13,6 +13,7 @@
 |---|---|
 | [`README.md`](README.md)（本文件） | 4 模型状态、前置条件、节点数、快速开始、缺口 |
 | [`SUPPORTED_HARDWARE.md`](SUPPORTED_HARDWARE.md) | DCU 架构 × 模型 条件矩阵、自检清单 |
+| [`docs/PREREQUISITES.md`](docs/PREREQUISITES.md) | 前置条件满足度清单（✅/❌/⚠️ 逐条，不满足的后果） |
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | 从零部署的分步手册（4 模型 × 两集群） |
 | [`docs/GOTCHAS.md`](docs/GOTCHAS.md) | 30+ 条踩坑记录（按症状查） |
 | [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) | 缺口清单（还差什么、谁来解决） |
@@ -136,6 +137,7 @@ dcu-vllm-deploy/
 ├── CONTRIBUTING.md                  # 适配新硬件/新模型贡献指南
 ├── LICENSE                          # MIT
 ├── docs/
+│   ├── PREREQUISITES.md              # 前置条件满足度清单（不满足的条件写在这）
 │   ├── DEPLOYMENT.md                # 从零部署分步手册（4 模型 × 两集群）
 │   ├── GOTCHAS.md                   # 30+ 条踩坑记录（脱敏）
 │   └── KNOWN_ISSUES.md              # 缺口清单（还差什么）
