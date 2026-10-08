@@ -11,8 +11,14 @@ set -u
 ENVDIR=$WORK/miniconda3-py310/envs/das185/bin
 VLLM=$ENVDIR/vllm
 SHIM=$HOME/glibc-shim/libglibc232shim.so
-MODEL=$HOME/models/DeepSeek-V4-Pro-0813
+MODEL=${MODEL_DIR:-$MODELS/DeepSeek-V4-Pro-0813}
 LOG_DIR=$WS/logs
+
+# 并行参数可通过环境变量覆盖（deploy.sh CLI 会传 TP/PP/DP/EP/MAXLEN）
+TP=${TP:-8}
+PP=${PP:-2}
+DP=${DP:-2}
+MAXLEN=${MAXLEN:-8192}
 
 NR=$1
 MASTER_ADDR=$2
@@ -49,12 +55,12 @@ export VLLM_HCU_DEEPSEEK_V4_ROCM_FAST_WOA=0
 COMMON=(
   --model "$MODEL"
   --served-model-name DeepSeek-V4-Pro-0813
-  --tensor-parallel-size 8
-  --pipeline-parallel-size 2
-  --data-parallel-size 2
+  --tensor-parallel-size "$TP"
+  --pipeline-parallel-size "$PP"
+  --data-parallel-size "$DP"
   --data-parallel-size-local 1
   --enable-expert-parallel
-  --nnodes 4
+  --nnodes "${NNODES:-4}"
   --node-rank "$NR"
   --master-addr "$MASTER_ADDR"
   --master-port "$MASTER_PORT"
@@ -65,7 +71,7 @@ COMMON=(
   #   AITER_MXFP4_BF16（TRITON_UNFUSED 在本机因 triton kernels 不可用被跳过，探针已验证）。
   --moe-backend auto
   --kv-cache-dtype fp8
-  --max-model-len 8192
+  --max-model-len "$MAXLEN"
   --gpu-memory-utilization 0.85
   --enforce-eager
   --port 8000

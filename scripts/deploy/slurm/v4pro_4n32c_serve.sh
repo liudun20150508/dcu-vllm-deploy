@@ -22,7 +22,6 @@ WORK=${WORK:-$HOME/work}                  # 大容量工作盘
 #   已在 aiter/ops/shuffle.py 末尾补函数（备份/移植说明见 验收/patches/）。
 # 分区已从 hx1hdnormal 改名为 hx1hdnormal01（sbatch -p hx1hdnormal 会报 Invalid account/partition）。
 set -u
-WS=$WS
 RUNNER=$WS/scripts/deploy/slurm/run_v4pro_node.sh
 LOG_DIR=$WS/logs
 PY=$WORK/miniconda3-py310/envs/das185/bin/python

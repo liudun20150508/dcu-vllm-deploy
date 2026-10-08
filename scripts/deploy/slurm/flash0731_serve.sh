@@ -22,9 +22,9 @@ WORK=${WORK:-$HOME/work}                  # 大容量工作盘
 # 用途：跑通 vllm_hcu 多节点 serve 全链路，给 v4pro（20 节点）探路。
 # 坑位 1/4/6/7/8/9 修复见 run_serve_node.sh 头部注释。
 set -u
-export MODEL_DIR=$HOME/models/DeepSeek-V4-Flash-0731
+export MODEL_DIR=${MODEL_DIR:-$MODELS/DeepSeek-V4-Flash-0731}
 export SERVED_NAME=DeepSeek-V4-Flash-0731
-export TP=4 PP=4 MAXLEN=8192
+export TP=${TP:-4} PP=${PP:-4} MAXLEN=${MAXLEN:-8192}
 export LOG_TAG=flash-vllm
 RUNNER=$WS/scripts/deploy/slurm/run_serve_node.sh
 LOG_DIR=$WS/logs

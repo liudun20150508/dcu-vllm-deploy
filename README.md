@@ -79,23 +79,47 @@ gfx906 缺得更多。适配前**先跑 `scripts/install/das185_check.py` 探针
 git clone <your-repo-url> && cd dcu-vllm-deploy
 
 # 2. 环境 + 下载 das185 wheel + 打补丁（幂等，可重跑）
-bash scripts/install/setup_all.sh --no-model
+bash deploy.sh install --no-model
 
-# 3. 下载模型权重（任选其一，走 hf-mirror / ModelScope）
-bash scripts/download/dl_flash_0731_base.sh   # Flash-0731 + Flash-Base
-bash scripts/download/dl_v4pro_base.sh        # Pro-Base（1.46TB，需本地大盘）
+# 3. 下载模型权重（走 hf-mirror / ModelScope）
+bash deploy.sh download --model flash0731   # Flash-0731 + Flash-Base
+bash deploy.sh download --model probase     # Pro-Base（1.46TB，需本地大盘）
 
-# 4. 部署（Slurm 多机，或单机 8 卡冒烟）
-sbatch scripts/deploy/slurm/flash0731_serve.sh
-bash scripts/deploy/smoke/flash0731_8card_smoke.sh
+# 4. 部署
+bash deploy.sh list                          # 先看 4 个模型及状态
+bash deploy.sh serve --model flash0731       # Slurm 多机多卡（默认 4n×4卡 TP4 PP4）
+bash deploy.sh serve --model pro0813         # 4n×8卡 TP8 PP2 DP2 EP16
+bash deploy.sh serve --model flash0731 --nodes 2 --tp 8 --dry-run  # 先 dry-run 预览
+bash deploy.sh smoke --model flashbase       # 单机 8 卡冒烟（无 Slurm）
 ```
+
+### CLI 说明
+
+统一入口 `deploy.sh`，五个子命令：
+
+| 命令 | 作用 | 示例 |
+|---|---|---|
+| `list` | 列出 4 模型 + 状态 | `./deploy.sh list` |
+| `serve` | Slurm 多机多卡部署 | `./deploy.sh serve --model flash0731 --nodes 2 --tp 8` |
+| `smoke` | 单机 8 卡冒烟 | `./deploy.sh smoke --model flashbase` |
+| `download` | 下载权重 | `./deploy.sh download --model probase` |
+| `install` | 环境 + 补丁 | `./deploy.sh install --no-model` |
+
+通用选项：`--dry-run`（只打印不执行）、`--script <path>`（跳过模型默认脚本的逃生舱）。
+`serve` 可覆盖默认并行策略：`--nodes --gres --tp --pp --dp --maxlen --partition`。
+
+**路径配置**：脚本里所有路径走环境变量（`WS`/`MODELS`/`DAS185`/`WORK`），
+默认 `WS=仓库根`、`MODELS=$HOME/models`、`DAS185=$HOME/das185`、`WORK=$HOME/work`，
+用 `export MODELS=/data/models` 之类覆盖即可。
 
 ## 五、目录结构
 
 ```
 dcu-vllm-deploy/
+├── deploy.sh                        # 统一 CLI 入口（list/serve/smoke/download/install）
 ├── README.md                        # 本文件
 ├── SUPPORTED_HARDWARE.md            # DCU 架构 × 模型 条件矩阵（详细）
+├── LICENSE                          # MIT
 ├── docs/
 │   ├── GOTCHAS.md                   # 30+ 条踩坑记录（脱敏）
 │   └── KNOWN_ISSUES.md              # 缺口清单（还差什么）

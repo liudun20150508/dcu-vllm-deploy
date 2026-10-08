@@ -15,7 +15,6 @@ WORK=${WORK:-$HOME/work}                  # 大容量工作盘
 #   bash setup_all.sh --no-model # 只适配环境，不下载模型
 # ============================================================
 set -u
-WS=$WS
 D=$DAS185
 DOWNLOAD_MODEL=1
 [ "${1:-}" = "--no-model" ] && DOWNLOAD_MODEL=0
@@ -42,7 +41,7 @@ PY="$D/env/bin/python"
 echo "  venv: $PY ($($PY --version 2>&1))"
 
 echo "########## [1/6] 下载全家桶 wheel ##########"
-bash "$WS/scripts/deploy/slurm/das185_dl_wheels.sh"
+bash "$WS/scripts/install/das185_dl_wheels.sh"
 
 echo "########## [2/6] 安装 das wheel（--no-deps 防 resolver 拉错 torch）##########"
 W="$D/wheels"
@@ -74,7 +73,7 @@ $PY -m pip install -q --no-deps --force-reinstall torch-2.10.0*.whl
 $PY -m pip install -q --no-deps --force-reinstall triton-3.6.0*.whl
 
 echo "########## [4/6] 打补丁 + vllm_hcu post_install ##########"
-$PY "$WS/scripts/deploy/slurm/das185_patch.py"
+$PY "$WS/scripts/install/das185_patch.py"
 $PY -m vllm_hcu.post_install
 
 echo "########## [5/6] aillvm（triton 需要 clang-18）##########"
@@ -90,13 +89,13 @@ source /opt/dtk-26.04/env.sh 2>/dev/null
 export HSA_FORCE_FINE_GRAIN_PCIE=1
 export TRITON_HIP_CLANG_PATH="$D/dtk-shim/aillvm/bin/clang-18"
 export AMDGCN_USE_BUFFER_OPS=0
-$PY "$WS/scripts/deploy/slurm/das185_check.py" 2>&1 | grep -vE "^WARNING|rocm_smi|UserWarning|_ARRAY_API|cpu = |functional_tensor|NUMA balancing|torch-c-dlpack|warnings.warn"
+$PY "$WS/scripts/install/das185_check.py" 2>&1 | grep -vE "^WARNING|rocm_smi|UserWarning|_ARRAY_API|cpu = |functional_tensor|NUMA balancing|torch-c-dlpack|warnings.warn"
 
 echo "########## 适配完成 ##########"
 
 if [ "$DOWNLOAD_MODEL" = "1" ]; then
   echo "########## 开始下载模型（0731 + Flash-Base → $MODELS）##########"
-  bash "$WS/dl_flash_0731_base.sh"
+  bash "$WS/scripts/download/dl_flash_0731_base.sh"
 else
   echo "（--no-model：跳过模型下载）"
 fi

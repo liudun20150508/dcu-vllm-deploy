@@ -23,11 +23,11 @@ WORK=${WORK:-$HOME/work}                  # 大容量工作盘
 # 见下方三组实验开关（勿同开）。其余坑位 1/4/6/7/8/9/10/12/13 修复见 run_serve_node.sh。
 # 注意：Base 不是 instruct，冒烟 prompt 用续写式（"人工智能是"），别问指令。
 set -u
-export MODEL_DIR=$HOME/models/DeepSeek-V4-Flash-Base
+export MODEL_DIR=${MODEL_DIR:-$MODELS/DeepSeek-V4-Flash-Base}
 export SERVED_NAME=DeepSeek-V4-Flash-Base
 # 坑26：MAXLEN 8192→4096（冒烟够用；减 profile 峰值 + KV cache 需求，
 # 16G 卡显存太紧，先跑通再调回 8192）
-export TP=4 PP=8 MAXLEN=4096
+export TP=${TP:-4} PP=${PP:-8} MAXLEN=${MAXLEN:-4096}
 export LOG_TAG=flashbase-vllm
 RUNNER=$WS/scripts/deploy/slurm/run_serve_node.sh
 HOOK_DIR=$WS/patches

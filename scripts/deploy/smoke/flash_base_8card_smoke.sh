@@ -6,10 +6,9 @@ DAS185=${DAS185:-$HOME/das185}            # das185 环境
 WORK=${WORK:-$HOME/work}                  # 大容量工作盘
 # ============================================================
 # 8 卡 gfx936 Base（fp8）真实权重冒烟启动器（本机 crdnotebook，非 slurm）。
-# 用法：bash 验收/slurm/flash_base_8card_smoke.sh
+# 用法：bash scripts/deploy/smoke/flash_base_8card_smoke.sh
 set -u
-WS=$WS
-LOG=/root/flash_base_8card_smoke.log
+LOG=${LOG:-$HOME/flash_base_8card_smoke.log}
 ulimit -c 0   # 禁用 core dump（避免崩溃时写满 NFS 持久盘）
 
 source /opt/dtk-26.04/env.sh
@@ -28,5 +27,5 @@ export TVM_FFI_DISABLE_TORCH_C_DLPACK=1
 export VLLM_ENGINE_READY_TIMEOUT_S=3600
 
 echo "########## flashbase 8card smoke start $(date) ##########" | tee -a "$LOG"
-$DAS185/env/bin/python "$WS/scripts/deploy/slurm/flash_base_8card_smoke.py" >> "$LOG" 2>&1
+$DAS185/env/bin/python "$WS/scripts/deploy/smoke/flash_base_8card_smoke.py" >> "$LOG" 2>&1
 echo "########## flashbase 8card smoke end $(date) rc=$? ##########" | tee -a "$LOG"

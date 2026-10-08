@@ -25,9 +25,9 @@ WORK=${WORK:-$HOME/work}                  # 大容量工作盘
 #   若报 PP 切分错误，唯一的均匀切分是 PP=61，不要试其它数。
 # 坑位 1/4/6/7/8/9 修复见 run_serve_node.sh 头部注释。
 set -u
-export MODEL_DIR=$HOME/models/DeepSeek-V4-Pro-0813
+export MODEL_DIR=${MODEL_DIR:-$MODELS/DeepSeek-V4-Pro-0813}
 export SERVED_NAME=DeepSeek-V4-Pro-0813
-export TP=4 PP=20 MAXLEN=8192
+export TP=${TP:-4} PP=${PP:-20} MAXLEN=${MAXLEN:-8192}
 export LOG_TAG=v4pro-vllm
 RUNNER=$WS/scripts/deploy/slurm/run_serve_node.sh
 LOG_DIR=$WS/logs
