@@ -14,6 +14,7 @@
 | [`README.md`](README.md)（本文件） | 4 模型状态、前置条件、节点数、快速开始、缺口 |
 | [`SUPPORTED_HARDWARE.md`](SUPPORTED_HARDWARE.md) | DCU 架构 × 模型 条件矩阵、自检清单 |
 | [`docs/PREREQUISITES.md`](docs/PREREQUISITES.md) | 前置条件满足度清单（✅/❌/⚠️ 逐条，不满足的后果） |
+| [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) | 真机实测数据（66倍调优、带宽、P2P、KV Cache、RDMA） |
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | 从零部署的分步手册（4 模型 × 两集群） |
 | [`docs/GOTCHAS.md`](docs/GOTCHAS.md) | 30+ 条踩坑记录（按症状查） |
 | [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) | 缺口清单（还差什么、谁来解决） |
@@ -129,6 +130,36 @@ bash deploy.sh smoke --model flashbase       # 单机 8 卡冒烟（无 Slurm）
 默认 `WS=仓库根`、`MODELS=$HOME/models`、`DAS185=$HOME/das185`、`WORK=$HOME/work`，
 用 `export MODELS=/data/models` 之类覆盖即可。
 
+### 安装 / 验证命令速查
+
+**一键安装**（`deploy.sh install` 背后是 `scripts/install/setup_all.sh`，幂等可重跑）：
+
+```bash
+bash deploy.sh install --no-model      # 只装环境，不下载模型
+bash deploy.sh install                 # 装环境 + 下载 0731/Base 权重
+
+# 等价底层命令（setup_all.sh 的 6 步）：
+source scripts/install/env.sh                          # ① 加载 DTK/HIP 环境（每次运行前都要）
+bash scripts/install/das185_dl_wheels.sh               # ② 下载 das185 全家桶 wheel + dtk_llvm.run
+bash scripts/install/setup_all.sh --no-model           # ③~⑥ 装 wheel→依赖→补丁→aillvm→验证
+```
+
+**独立命令**：
+
+```bash
+source scripts/install/env.sh                          # 运行环境（DTK 26.04 + HIP 库路径）
+bash scripts/install/build_glibc_shim.sh               # 老集群 glibc 2.31 才需要：编 libglibc232shim.so
+python3 scripts/install/das185_check.py                # 探针：torch 认卡 + 各模块 import
+```
+
+**部署前验证**（对应 `docs/PREREQUISITES.md` 的 ✅ 条件）：
+
+```bash
+bash scripts/verify/check_hw.sh                        # 硬件：架构/显存/CU/卡数/网卡/DTK
+bash scripts/verify/rccl_allreduce.sh --np 8           # RCCL 通信正确性（单机 8 卡）
+sbatch scripts/verify/rccl_allreduce.sh                # RCCL 跨机（Slurm）
+```
+
 ## 五、目录结构
 
 ```
@@ -140,6 +171,7 @@ dcu-vllm-deploy/
 ├── LICENSE                          # MIT
 ├── docs/
 │   ├── PREREQUISITES.md              # 前置条件满足度清单（不满足的条件写在这）
+│   ├── BENCHMARKS.md                 # 真机实测数据（带宽/P2P/KV Cache/RDMA）
 │   ├── DEPLOYMENT.md                # 从零部署分步手册（4 模型 × 两集群）
 │   ├── GOTCHAS.md                   # 30+ 条踩坑记录（脱敏）
 │   └── KNOWN_ISSUES.md              # 缺口清单（还差什么）
