@@ -68,10 +68,10 @@ gfx906 缺得更多。适配前**先跑 `scripts/install/das185_check.py` 探针
 
 ### 网卡 / RCCL（两套实测集群，别混）
 
-| 集群 | 分区 | DCU | 每节点卡数 | 每节点 RDMA | RCCL 怎么走 |
-|---|---|---|---|---|---|
-| 老集群 | `kshdnormal` | gfx906 | 4 卡 | **Mellanox mlx5 200G ×4** | 内置 IB verbs，实测仅 `mlx5_0` 能建 QP → `NCCL_IB_HCA=mlx5_0` |
-| 新集群 | `hx1hdnormal01` | gfx938 | 8 卡 | **自研 shca 400G ×4** | `NCCL_NET_PLUGIN=librccl-net-shca.so`（专有插件，向集群管理员索取，不入库） |
+| 集群 | 分区 | DCU | 集群总规模 | 每节点卡数 | 每节点 RDMA | RCCL 怎么走 |
+|---|---|---|---|---|---|---|
+| 老集群 | `kshdnormal` | gfx906 | **494 节点 / 1976 卡** | 4 卡 | **Mellanox mlx5 200G ×4** | 内置 IB verbs，实测仅 `mlx5_0` 能建 QP → `NCCL_IB_HCA=mlx5_0` |
+| 新集群 | `hx1hdnormal01` | gfx938 | **95 节点 / 760 卡** | 8 卡 | **自研 shca 400G ×4** | `NCCL_NET_PLUGIN=librccl-net-shca.so`（专有插件，向集群管理员索取，不入库） |
 
 > 单节点 scha RDMA 设备数 = **4 张**（`shca_0..3`，link_layer InfiniBand，PORT_ACTIVE）；
 > 单节点 mlx5 设备数 = **4 张**（`mlx5_0..3`，200G IB）。选错网卡配置会直接退化/失败。

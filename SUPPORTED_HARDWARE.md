@@ -73,10 +73,10 @@ gfx938 目前卡在算子库内部缺失；gfx906 老架构缺得最多。
 
 ## 五、网卡 / RCCL 条件（两套实测集群，别混）
 
-| 网卡 | 所属集群 | 每节点设备数 | 链路 | 速率 | RCCL 怎么走 | 条件 |
+| 网卡 | 所属集群（规模） | 每节点设备数 | 链路 | 速率 | RCCL 怎么走 | 条件 |
 |---|---|---|---|---|---|---|
-| 自研 `shca_*` | hx1hdnormal01（gfx938） | **4 张**（shca_0..3） | InfiniBand | 400G | `NCCL_NET_PLUGIN=librccl-net-shca.so` | 专有插件，向管理员索取 |
-| Mellanox `mlx5_*` | kshdnormal（gfx906） | **4 张**（mlx5_0..3） | InfiniBand | 200G | 内置 IB verbs | 实测仅 `mlx5_0` 能建 QP，需 `NCCL_IB_HCA=mlx5_0` |
+| 自研 `shca_*` | hx1hdnormal01（gfx938，95 节点 / 760 卡） | **4 张**（shca_0..3） | InfiniBand | 400G | `NCCL_NET_PLUGIN=librccl-net-shca.so` | 专有插件，向管理员索取 |
+| Mellanox `mlx5_*` | kshdnormal（gfx906，494 节点 / 1976 卡） | **4 张**（mlx5_0..3） | InfiniBand | 200G | 内置 IB verbs | 实测仅 `mlx5_0` 能建 QP，需 `NCCL_IB_HCA=mlx5_0` |
 
 **性能参照（实测）**：
 - shca 四平面 2 节点 16 卡 AllReduce：**68.4 GB/s**（超过单口 400G 理论值，多网卡并行生效）
