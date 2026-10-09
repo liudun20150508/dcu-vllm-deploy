@@ -15,6 +15,7 @@
 | [`SUPPORTED_HARDWARE.md`](SUPPORTED_HARDWARE.md) | DCU 架构 × 模型 条件矩阵、自检清单 |
 | [`docs/PREREQUISITES.md`](docs/PREREQUISITES.md) | 前置条件满足度清单（✅/❌/⚠️ 逐条，不满足的后果） |
 | [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) | 真机实测数据（66倍调优、带宽、P2P、KV Cache、RDMA） |
+| [`docs/MODEL_RUNBOOK.md`](docs/MODEL_RUNBOOK.md) | 按 4 模型记录部署历史 + 脚本 + 命令 + 改的代码/算子/编译器 |
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | 从零部署的分步手册（4 模型 × 两集群） |
 | [`docs/GOTCHAS.md`](docs/GOTCHAS.md) | 30+ 条踩坑记录（按症状查） |
 | [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) | 缺口清单（还差什么、谁来解决） |
@@ -172,6 +173,7 @@ dcu-vllm-deploy/
 ├── docs/
 │   ├── PREREQUISITES.md              # 前置条件满足度清单（不满足的条件写在这）
 │   ├── BENCHMARKS.md                 # 真机实测数据（带宽/P2P/KV Cache/RDMA）
+│   ├── MODEL_RUNBOOK.md              # 按 4 模型：部署历史 + 脚本 + 命令 + 改的代码
 │   ├── DEPLOYMENT.md                # 从零部署分步手册（4 模型 × 两集群）
 │   ├── GOTCHAS.md                   # 30+ 条踩坑记录（脱敏）
 │   └── KNOWN_ISSUES.md              # 缺口清单（还差什么）
