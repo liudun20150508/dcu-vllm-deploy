@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# 运行产物
+logs/
+*.log
+*.out
+*.err
+
+# 模型权重 / 大文件（不应进 git）
+*.safetensors
+*.bin
+*.gguf
+models/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 环境 / 密钥
+.env
+*.pem
+*.key
+
+# 临时
+*.part
+tmp/
