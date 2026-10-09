@@ -43,10 +43,9 @@
 
 | DCU 架构 | 型号 | 单卡显存 | 每节点卡数 | 备注 |
 |---|---|---|---|---|
-| gfx936 | 海光 BW（C-3000） | 64 GB | 8 | 本框架主要实测目标 |
-| gfx906 | 深算一号 Z100L | 16 GB | 4（实测）/ 8 | 老架构，部分算子不支持 |
+| gfx906 | 深算一号 Z100L | 16 GB | **4（实测）** | 老架构，部分算子不支持 |
+| gfx938 | 海光 BW 系列（与 gfx936 同白名单） | 64 GB | 8 | 本框架实测目标 gfx936，938 同规格 |
 | gfx928 | 深算二号 K100 | 96 GB（**需真机核实**） | 8 | 未实测，仅按公开规格推算 |
-| gfx938 | — | 64 GB | 8 | 与 gfx936 同白名单 |
 
 **关键结论：不同 gfx 架构支持的 MoE 算子不同。** 这是本框架踩坑的核心：
 fp4/fp8 的 DeepSeek-V4 MoE 后端在 gfx950 系列才完整，gfx936/gfx938 缺 kernel，
@@ -67,25 +66,28 @@ gfx906 缺得更多。适配前**先跑 `scripts/install/das185_check.py` 探针
 
 > 这些版本是逐坑踩出来的（见 `docs/GOTCHAS.md`），随意升级会引入新问题。
 
-### 网卡 / RCCL
+### 网卡 / RCCL（两套实测集群，别混）
 
-- **自研 shca 网卡（400G）**：需 `NCCL_NET_PLUGIN=librccl-net-shca.so`（专有插件，
-  向集群管理员索取，不入库）。
-- **Mellanox mlx5（200G）**：走 RCCL 内置 IB verbs，但实测只有 `mlx5_0` 能建 QP，
-  需 `NCCL_IB_HCA=mlx5_0` 钉死单口。
+| 集群 | 分区 | DCU | 每节点卡数 | 每节点 RDMA | RCCL 怎么走 |
+|---|---|---|---|---|---|
+| 老集群 | `kshdnormal` | gfx906 | 4 卡 | **Mellanox mlx5 200G ×4** | 内置 IB verbs，实测仅 `mlx5_0` 能建 QP → `NCCL_IB_HCA=mlx5_0` |
+| 新集群 | `hx1hdnormal01` | gfx936 | 8 卡 | **自研 shca 400G ×4** | `NCCL_NET_PLUGIN=librccl-net-shca.so`（专有插件，向集群管理员索取，不入库） |
 
-## 三、节点数估算（每节点 8 卡口径，纯权重下限）
+> 单节点 scha RDMA 设备数 = **4 张**（`shca_0..3`，link_layer InfiniBand，PORT_ACTIVE）；
+> 单节点 mlx5 设备数 = **4 张**（`mlx5_0..3`，200G IB）。选错网卡配置会直接退化/失败。
 
-| 模型 | gfx906 (16G×8=128G) | gfx936 (64G×8=512G) | gfx928 (96G×8=768G*) |
+## 三、节点数估算（纯权重下限，按各架构实测卡数）
+
+| 模型 | gfx906 (16G×4=64G/节点) | gfx928 (96G×8=768G*/节点) | gfx938 (64G×8=512G/节点) |
 |---|---|---|---|
-| Flash-0731 (156G) | 2 | 1 | 1 |
-| Flash-Base (275G) | 3 | 1 | 1 |
-| Pro-0813 (832G) | 7 | 2 | 2 |
-| Pro-Base (1.46T) | 12 | 3 | 2 |
+| Flash-0731 (156G) | 3 | 1 | 1 |
+| Flash-Base (275G) | 5 | 1 | 1 |
+| Pro-0813 (832G) | 13 | 2 | 2 |
+| Pro-Base (1.46T) | 24 | 2 | 3 |
 
-\* gfx928 显存按 96G 推算，需真机核实。真实推理还要加 KV Cache + 激活 + workspace，
-**按 1.2~1.5× 预留**；长上下文场景（1M token）KV Cache 会额外吃掉几十 GB，
-务必按 `--max-model-len` 反推后放宽。
+\* gfx928 显存按 96G 推算，需真机核实；906 按实测 4 卡/节点、928/938 按 8 卡/节点。
+真实推理还要加 KV Cache + 激活 + workspace，**按 1.2~1.5× 预留**；
+长上下文场景（1M token）KV Cache 会额外吃掉几十 GB，务必按 `--max-model-len` 反推后放宽。
 
 ## 四、快速开始
 
@@ -102,7 +104,7 @@ bash deploy.sh download --model probase     # Pro-Base（1.46TB，需本地大�
 
 # 4. 部署
 bash deploy.sh list                          # 先看 4 个模型及状态
-bash deploy.sh serve --model flash0731       # Slurm 多机多卡（默认 4n×4卡 TP4 PP4）
+bash deploy.sh serve --model flash0731       # Slurm 多机多卡（默认 TP4 PP4；--gres 按集群卡数）
 bash deploy.sh serve --model pro0813         # 4n×8卡 TP8 PP2 DP2 EP16
 bash deploy.sh serve --model flash0731 --nodes 2 --tp 8 --dry-run  # 先 dry-run 预览
 bash deploy.sh smoke --model flashbase       # 单机 8 卡冒烟（无 Slurm）
@@ -143,12 +145,13 @@ dcu-vllm-deploy/
 │   └── KNOWN_ISSUES.md              # 缺口清单（还差什么）
 ├── scripts/
 │   ├── download/                    # 模型权重下载（hf-mirror / ModelScope）
-│   ├── install/                     # 环境安装 + 补丁 + 探针
+│   ├── install/                     # 环境安装 + 补丁 + 探针 + glibc-shim 编译
 │   ├── verify/                      # 前置条件验证（check_hw + rccl_allreduce）
 │   └── deploy/
 │       ├── slurm/                   # Slurm 多机多卡 serve
 │       └── smoke/                   # 单机 8 卡冒烟
-└── patches/                         # 运行期注入补丁（sitecustomize 等）
+├── experiments/                     # 算子层 HIP kernel（FP4 反量化等，绕开 aiter 的起点）
+└── patches/                         # 运行期注入补丁（sitecustomize + glibc-shim 源码）
 ```
 
 ## 六、已知缺口（还差什么）

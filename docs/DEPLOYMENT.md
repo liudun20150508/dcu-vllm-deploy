@@ -42,6 +42,13 @@ bash deploy.sh install --dry-run 2>/dev/null || true
 > `install` 会做的事：装 python3.10 头文件 → 下载 das185 全家桶 wheel → 装 wheel →
 > 打 4 个补丁（`das185_patch.py`）→ vllm_hcu post_install → 解包 aillvm → 验证环境。
 > 全部幂等，断了重跑即可。
+>
+> **老集群（glibc 2.31）额外一步**：vllm 的 `.so` 链接了 glibc 2.32 符号，需编译并
+> 预加载 shim（gfx936 新集群跳过）：
+> ```bash
+> bash scripts/install/build_glibc_shim.sh      # 产出 $HOME/glibc-shim/libglibc232shim.so
+> ```
+> 各 serve 脚本已内置 `LD_PRELOAD=$HOME/glibc-shim/libglibc232shim.so`，编好即生效。
 
 ---
 
