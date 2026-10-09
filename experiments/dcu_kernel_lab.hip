@@ -7,13 +7,13 @@
 //   这份实验就把那些"改了名字也搬不过去"的地方跑出来：
 //
 //     ① wave64：DCU 的 warp 是 **64 个 lane**，不是 32 —— 写死 32 的归约会静默算错
-//     ② 显存带宽：摸 gfx936 的实际带宽（平台基线上是 1.35 TB/s）
+//     ② 显存带宽：摸 gfx938 的实际带宽（平台基线上是 1.35 TB/s）
 //     ③ 归约 kernel：这是集合通信的 GPU 端基础（NCCL/RCCL 的内核就干这个）
 //     ④ P2P：两块 DCU 之间直接搬数据，不走主机
 //
 // 编译运行（在计算节点）：
 //     module load compiler/dtk/26.04
-//     hipcc -O2 --offload-arch=gfx936 -o dcu_kernel_lab dcu_kernel_lab.hip && ./dcu_kernel_lab
+//     hipcc -O2 --offload-arch=gfx938 -o dcu_kernel_lab dcu_kernel_lab.hip && ./dcu_kernel_lab
 
 #include <hip/hip_runtime.h>
 

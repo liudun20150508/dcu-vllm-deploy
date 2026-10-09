@@ -5,10 +5,10 @@ MODELS = os.environ.get("MODELS", os.path.expanduser("~/models"))  # 模型权�
 DAS185 = os.environ.get("DAS185", os.path.expanduser("~/das185"))  # das185 环境
 WORK = os.environ.get("WORK", os.path.expanduser("~/work"))        # 大容量工作盘
 # ============================================================
-"""gfx936 单卡 dummy 冒烟：vllm_hcu 加载 DeepSeek-V4-Flash-0731 结构（dummy 权重）+ 前向。
+"""gfx938 单卡 dummy 冒烟：vllm_hcu 加载 DeepSeek-V4-Flash-0731 结构（dummy 权重）+ 前向。
 
 复用真实 config.json，缩小 num_hidden_layers 控制显存；权重用 --load-format dummy
-（vllm 内置随机权重，不读 safetensors），验证 gfx936 上模型结构加载 + 前向链路。
+（vllm 内置随机权重，不读 safetensors），验证 gfx938 上模型结构加载 + 前向链路。
 """
 import os
 import json
@@ -28,7 +28,7 @@ def main():
     cfg["n_routed_experts"] = 16
     cfg["moe_intermediate_size"] = 512
     # dummy 冒烟用 fp8 专家（避开 fp4/MXFP4 的 CK MoE dtype 门槛），
-    # 只验证 gfx936 加载 + 前向链路；fp4 权重另行验证。
+    # 只验证 gfx938 加载 + 前向链路；fp4 权重另行验证。
     cfg["expert_dtype"] = "fp8"
     json.dump(cfg, open(os.path.join(DUMMY, "config.json"), "w"), indent=2)
     for f in ("tokenizer.json", "tokenizer_config.json", "generation_config.json"):

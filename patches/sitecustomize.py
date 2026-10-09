@@ -25,7 +25,7 @@ WORK = os.environ.get("WORK", os.path.expanduser("~/work"))        # 大容量�
 #
 # 坑15 实验开关：DUPFIX_FORCE_AITER=1 时，把 vllm._aiter_ops 的
 # is_aiter_found_and_supported() 恒改为 True（gfx906 老卡硬跑 AITER MoE/量化）。
-# hcu 的门槛是 on_gfx93x()（gfx936/gfx938），gfx906 上恒 False → MXFP4 无后端；
+# hcu 的门槛是 on_gfx93x()（覆盖 gfx938/gfx936 同代，官方口径 gfx938），gfx906 上恒 False → MXFP4 无后端；
 # 环境里装的是海光定制 aiter（0.1.5+das185.dtk2604），可能真支持 gfx906、只是门槛不认。
 # 默认关（不设变量行为与原来完全一致），只在需要时作业脚本里 export 打开。
 import os
@@ -219,7 +219,7 @@ def _install_aiter(mod):
     ① is_supported_config 是继承自基类的(不在 cls.__dict__ 里,旧 _wrap_support
        会落空),这里显式把打日志包装装到类上 → 每次支持检查的真实拒绝原因可见;
     ② DUPFIX_FORCE_AITER=1 时绕过 _supports_quant_scheme 里的 gfx950 门槛
-       (MXFP4 权重的第二道架构门:vllm_hcu 没 patch 它,gfx906/gfx936 都恒 False)。
+       (MXFP4 权重的第二道架构门:vllm_hcu 没 patch 它,gfx906/gfx938 都恒 False)。
     """
     cls = getattr(mod, "AiterExperts", None)
     if cls is not None and not getattr(cls, "_support_wrapped", False):

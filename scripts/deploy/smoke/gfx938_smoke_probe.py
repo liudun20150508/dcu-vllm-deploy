@@ -5,7 +5,7 @@ MODELS = os.environ.get("MODELS", os.path.expanduser("~/models"))  # 模型权�
 DAS185 = os.environ.get("DAS185", os.path.expanduser("~/das185"))  # das185 环境
 WORK = os.environ.get("WORK", os.path.expanduser("~/work"))        # 大容量工作盘
 # ============================================================
-"""gfx936 单卡冒烟前验证：aiter shuffle 补丁 + triton 编译 + fp8/f16 dot。"""
+"""gfx938 单卡冒烟前验证：aiter shuffle 补丁 + triton 编译 + fp8/f16 dot。"""
 import traceback
 import torch
 

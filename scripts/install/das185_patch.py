@@ -6,7 +6,7 @@ MODELS = os.environ.get("MODELS", os.path.expanduser("~/models"))  # 模型权�
 DAS185 = os.environ.get("DAS185", os.path.expanduser("~/das185"))  # das185 环境
 WORK = os.environ.get("WORK", os.path.expanduser("~/work"))        # 大容量工作盘
 # ============================================================
-"""给 das185 环境打 gfx936 适配补丁（对应之前 906/928 适配的坑位）。"""
+"""给 das185 环境打 gfx938（海光 BW，BW-1）适配补丁（对应之前 906/928 适配的坑位）。"""
 import sys
 from pathlib import Path
 
@@ -42,7 +42,7 @@ if txt != orig:
 else:
     print("[patch2] triton compiler flags 已存在或未匹配")
 
-# ---- 补丁3：gfx936/gfx938 的 MXFP4 MoE 门槛（AiterExperts._supports_quant_scheme）----
+# ---- 补丁3：gfx938 的 MXFP4 MoE 门槛（AiterExperts._supports_quant_scheme）----
 aiter_moe = SITE / "vllm/model_executor/layers/fused_moe/experts/rocm_aiter_moe.py"
 txt = aiter_moe.read_text()
 orig = txt
@@ -54,17 +54,19 @@ old = """        if weight_key == kMxfp4Static:
 new = """        if weight_key == kMxfp4Static:
             from vllm.platforms.rocm import on_gfx950
 
-            # [中科曙光 gfx936 适配] aiter 自带 gfx936/gfx938 的 fp4_w4a16 CK 算子，
-            # 原门槛只认 gfx950，导致海光 BW(gfx936) 被拒。
+            # [中科曙光 gfx938 适配] aiter 自带 gfx938 的 fp4_w4a16 CK 算子，
+            # 原门槛只认 gfx950，导致海光 BW(gfx938) 被拒。
             _arch = torch.cuda.get_device_properties("cuda").gcnArchName
+            # 白名单保留 gfx936/gfx938 两个：真机 gcnArchName 实测报 gfx936，
+            # 官方型号口径 gfx938（BW-1），两者都放行做兼容。
             if not (on_gfx950() or any(a in _arch for a in ("gfx936", "gfx938"))):
                 return False"""
 if old in txt:
     txt = txt.replace(old, new)
     aiter_moe.write_text(txt)
-    print("[patch3] gfx936 MXFP4 门槛补丁已应用")
-elif "gfx936" in txt:
-    print("[patch3] gfx936 补丁已存在，跳过")
+    print("[patch3] gfx938 MXFP4 门槛补丁已应用")
+elif "gfx936" in txt or "gfx938" in txt:
+    print("[patch3] gfx938 补丁已存在，跳过")
 else:
     print("[patch3] WARN: 未找到 MXFP4 门槛代码段，需人工确认")
 
@@ -80,7 +82,7 @@ old = """    # following for tuning
 ):"""
 new = """    # following for tuning
     block_size_M=None,
-    # [中科曙光 gfx936 适配] vllm 260611 的 _aiter_ops 会传这些 kwarg，
+    # [中科曙光 gfx938 适配] vllm 260611 的 _aiter_ops 会传这些 kwarg，
     # 海光 aiter 260813 不支持；单卡 EP=1 下为 None/0，忽略即可。
     num_local_tokens=None,
     dtype=None,

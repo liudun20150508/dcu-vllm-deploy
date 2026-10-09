@@ -5,7 +5,7 @@ MODELS=${MODELS:-$HOME/models}            # 模型权重目录
 DAS185=${DAS185:-$HOME/das185}            # das185 环境
 WORK=${WORK:-$HOME/work}                  # 大容量工作盘
 # ============================================================
-# 8 卡 gfx936 Base（fp8）真实权重冒烟启动器（本机 crdnotebook，非 slurm）。
+# 8 卡 gfx938 Base（fp8）真实权重冒烟启动器（本机 crdnotebook，非 slurm）。
 # 用法：bash scripts/deploy/smoke/flash_base_8card_smoke.sh
 set -u
 LOG=${LOG:-$HOME/flash_base_8card_smoke.log}

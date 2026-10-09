@@ -33,7 +33,7 @@
    cat /sys/class/drm/card*/device/mem_info_vram_total
    ibstat | grep -iE "^CA|Rate|Link layer"
    ```
-2. **先冒烟**：`scripts/deploy/smoke/gfx936_dummy_smoke.py` 用 dummy 权重走通链路
+2. **先冒烟**：`scripts/deploy/smoke/gfx938_dummy_smoke.py` 用 dummy 权重走通链路
    （不含真实 MoE），确认「环境/结构加载/前向」没问题，再上真实权重。
 3. **记录真实权重结果**，分三层判断：
    - 环境/权重/RCCL 通 ✅ → 卡 MoE 算子 → 记录到 `KNOWN_ISSUES.md`，附后端报错原文；

@@ -5,11 +5,11 @@ MODELS = os.environ.get("MODELS", os.path.expanduser("~/models"))  # 模型权�
 DAS185 = os.environ.get("DAS185", os.path.expanduser("~/das185"))  # das185 环境
 WORK = os.environ.get("WORK", os.path.expanduser("~/work"))        # 大容量工作盘
 # ============================================================
-"""8 卡 gfx936 真实权重冒烟：DeepSeek-V4-Flash-0731（156G fp4）TP=8 加载 + 前向。
+"""8 卡 gfx938 真实权重冒烟：DeepSeek-V4-Flash-0731（156G fp4）TP=8 加载 + 前向。
 
-基于 gfx936 单卡 dummy 冒烟（gfx936_dummy_smoke.py）+ run_serve_node.sh 的坑位经验，
+基于 gfx938 单卡 dummy 冒烟（gfx938_dummy_smoke.py）+ run_serve_node.sh 的坑位经验，
 区别：真实 safetensors 权重 + expert_dtype=fp4（走 AITER CK MoE fp4_w4a16，补丁3已放开
-gfx936/gfx938 门槛）+ tensor_parallel_size=8。
+gfx938 门槛）+ tensor_parallel_size=8。
 """
 import os
 import torch

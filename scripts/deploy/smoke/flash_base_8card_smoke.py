@@ -5,7 +5,7 @@ MODELS = os.environ.get("MODELS", os.path.expanduser("~/models"))  # 模型权�
 DAS185 = os.environ.get("DAS185", os.path.expanduser("~/das185"))  # das185 环境
 WORK = os.environ.get("WORK", os.path.expanduser("~/work"))        # 大容量工作盘
 # ============================================================
-"""8 卡 gfx936 真实权重冒烟：DeepSeek-V4-Flash-Base（275G fp8）TP=8 加载 + 前向。
+"""8 卡 gfx938 真实权重冒烟：DeepSeek-V4-Flash-Base（275G fp8）TP=8 加载 + 前向。
 
 与 flash0731_8card_smoke.py 同结构，区别：Base 是 expert_dtype=fp8（走 AITER fp8 MoE，
 dummy 冒烟已验证该链路），权重 275G。

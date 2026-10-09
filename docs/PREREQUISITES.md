@@ -18,8 +18,8 @@ MoE 算子缺口，本地无快速路径，要等厂商补丁。
 
 | # | 条件 | 状态 | 不满足的后果 |
 |---|---|---|---|
-| 1 | DCU 硬件（gfx936 实测目标） | ✅ 满足 | — |
-| 2 | DCU 硬件（gfx928 / gfx938） | ⚠️ 未核实 | 换卡要重新确认显存/算子 |
+| 1 | DCU 硬件（gfx938 实测目标） | ✅ 满足 | — |
+| 2 | DCU 硬件（gfx928） | ⚠️ 未核实 | 换卡要重新确认显存/算子 |
 | 3 | das185 软件栈（torch/aiter/vllm） | ✅ 满足 | — |
 | 4 | 4 个适配补丁（`das185_patch.py`） | ✅ 满足 | — |
 | 5 | RCCL 通信 | ✅ 满足 | — |
@@ -35,13 +35,13 @@ MoE 算子缺口，本地无快速路径，要等厂商补丁。
 
 ### ✅ 满足的（不用管）
 
-**1. DCU 硬件（gfx936）**
-海光 BW（C-3000），gfx936，80 CU，64 GB，warpSize 64。真机量过，是本框架主测目标。
+**1. DCU 硬件（gfx938）**
+海光 BW（C-3000），gfx938，80 CU，64 GB，warpSize 64。真机量过，是本框架主测目标。
 
 > **验证代码**：`scripts/verify/check_hw.sh`
 > **实测输出**（验收报告）：
 > ```
-> gcnArchName : gfx936:sramecc+:xnack-
+> gcnArchName : gfx938:sramecc+:xnack-
 > multiProcessor: 80
 > warpSize      : 64
 > totalGlobalMem: 64.0 GB
@@ -60,7 +60,7 @@ triton 3.6.0 / tilelang 0.1.9 / flash_mla 1.2.0。全部装好、版本锁定。
 
 **4. 适配补丁**
 `scripts/install/das185_patch.py` 四个补丁（aiter shuffle / triton flags /
-gfx936 MXFP4 门槛 / fused_moe 签名）已应用，幂等可重跑。
+gfx938 MXFP4 门槛 / fused_moe 签名）已应用，幂等可重跑。
 
 > **验证代码**：`scripts/install/das185_patch.py`（幂等，重跑输出 `已存在，跳过` 即已应用）
 
@@ -78,10 +78,9 @@ all_reduce 正确性通过；单机 8 卡 256MB busbw **109 GB/s**，跨机 shca
 
 ### ⚠️ 部分满足 / 未核实
 
-**2. gfx928 / gfx938**
+**2. gfx928**
 - gfx928（深算二号 K100）：显存按公开规格推 96 GB，**未真机量过**，算子支持未知。
-- gfx938：与 gfx936 同白名单，但未单独测。
-- 后果：拿这两块卡跑之前，先跑 `scripts/install/das185_check.py` 探针，别套 gfx936 结论。
+- 后果：拿这块卡跑之前，先跑 `scripts/install/das185_check.py` 探针，别套 gfx938 结论。
 
 **6. 模型权重**
 | 模型 | 权重 | 状态 |
@@ -102,7 +101,7 @@ all_reduce 正确性通过；单机 8 卡 256MB busbw **109 GB/s**，跨机 shca
 | 后端 | 失败 |
 |---|---|
 | AITER | `ck_moe` 不认识 fp4 dtype（`Float4_e2m1fn_x2`=45 → `Unsupported data type 45`） |
-| TRITON | 汇编出 gfx950 指令 `v_cvt_pk_f32_fp8_e32`，gfx936 报 `instruction not supported` |
+| TRITON | 汇编出 gfx950 指令 `v_cvt_pk_f32_fp8_e32`，gfx938 报 `instruction not supported` |
 | EMULATION | `Mxfp4MoEMethod` 硬拒绝（`Unsupported mxfp4_backend`） |
 
 **8. FP8 MoE 算子（Flash-Base）—— 三条后端全死**
@@ -111,9 +110,9 @@ all_reduce 正确性通过；单机 8 卡 256MB busbw **109 GB/s**，跨机 shca
 |---|---|
 | AITER | `MoeSortingMultiPhaseKernel` VM Fault（非法地址，8 worker 一起崩） |
 | TRITON | 不支持 `block 128×128` 量化方案 |
-| MARLIN | 仅 `is_cuda()`，gfx936 不支持 |
+| MARLIN | 仅 `is_cuda()`，gfx938 不支持 |
 
-**解决方（唯一现实路径）**：向海光/曙光要 gfx936 版 DeepSeek-V4 MoE 算子
+**解决方（唯一现实路径）**：向海光/曙光要 gfx938 版 DeepSeek-V4 MoE 算子
 （换更新版 aiter 或要补丁）。拿到后直接复测：
 `scripts/deploy/smoke/flash0731_8card_smoke.sh` / `flash_base_8card_smoke.sh`。
 
@@ -137,4 +136,4 @@ all_reduce 正确性通过；单机 8 卡 256MB busbw **109 GB/s**，跨机 shca
 5. **Pro-Base 首次部署**（1 天+）—— 下载 1.46TB + 按显存重算并行参数。
 
 **结论：除非拿到条件 7/8 的厂商算子补丁，Flash-0731 和 Flash-Base 的推理前向
-在当前 gfx936 上是跑不通的。这不是脚本能解决的，如实记录。**
+在当前 gfx938 上是跑不通的。这不是脚本能解决的，如实记录。**

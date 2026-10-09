@@ -13,7 +13,7 @@
 | 环境 | 分区 | DCU | 每节点卡数 | 网卡 | 适用模型 |
 |---|---|---|---|---|---|
 | **A. 老集群** | `kshdnormal` | gfx906（16G） | 4 | Mellanox mlx5 200G（钉 `mlx5_0`） | Flash-0731 / Flash-Base / Pro-0813(20n80c) |
-| **B. 新集群** | `hx1hdnormal01` | gfx936 海光 BW（64G） | 8 | 自研 shca 400G（`librccl-net-shca.so`） | Pro-0813(4n32c) |
+| **B. 新集群** | `hx1hdnormal01` | gfx938 海光 BW（64G） | 8 | 自研 shca 400G（`librccl-net-shca.so`） | Pro-0813(4n32c) |
 
 > 判断方法见 `SUPPORTED_HARDWARE.md` 第六节的探针命令。**先确认再动手**，尤其是
 > `NCCL_IB_HCA=mlx5_0` vs `NCCL_NET_PLUGIN=librccl-net-shca.so` 这一条，选错直接退化/失败。
@@ -44,7 +44,7 @@ bash deploy.sh install --dry-run 2>/dev/null || true
 > 全部幂等，断了重跑即可。
 >
 > **老集群（glibc 2.31）额外一步**：vllm 的 `.so` 链接了 glibc 2.32 符号，需编译并
-> 预加载 shim（gfx936 新集群跳过）：
+> 预加载 shim（gfx938 新集群跳过）：
 > ```bash
 > bash scripts/install/build_glibc_shim.sh      # 产出 $HOME/glibc-shim/libglibc232shim.so
 > ```
@@ -123,14 +123,14 @@ bash deploy.sh serve --model probase    # 会报错：无 serve 脚本
 ```
 
 这是**故意的**：Pro-Base 目前只有下载脚本，从未部署验证。要部署需先按 Pro-0813 的
-4n32c 脚本改 `--script`，并把并行参数按 1.46TB 重算（参考 README 节点数表：gfx936 需
+4n32c 脚本改 `--script`，并把并行参数按 1.46TB 重算（参考 README 节点数表：gfx938 需
 3 节点起，gfx928 需 2 节点）。
 
 ---
 
 ## 四、冒烟（单机 8 卡，无 Slurm）
 
-新集群 B 的 gfx936 单机（如 notebook 实例）上，先冒烟再上多机：
+新集群 B 的 gfx938 单机（如 notebook 实例）上，先冒烟再上多机：
 
 ```bash
 bash deploy.sh smoke --model flash0731     # TP=8 真实权重，卡 MoE
@@ -140,8 +140,8 @@ bash deploy.sh smoke --model flashbase     # TP=8，卡 MoE
 底层还有两个探针/冒烟（不走 deploy.sh）：
 
 ```bash
-python3 scripts/deploy/smoke/gfx936_smoke_probe.py   # aiter shuffle + triton 编译 + fp8 dot
-python3 scripts/deploy/smoke/gfx936_dummy_smoke.py   # dummy 权重全链路（能通的那条链）
+python3 scripts/deploy/smoke/gfx938_smoke_probe.py   # aiter shuffle + triton 编译 + fp8 dot
+python3 scripts/deploy/smoke/gfx938_dummy_smoke.py   # dummy 权重全链路（能通的那条链）
 ```
 
 > **dummy 冒烟能通、真实权重卡住**，这个反差本身就是结论：链路/环境没问题，

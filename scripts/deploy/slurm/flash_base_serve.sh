@@ -46,7 +46,7 @@ export PYTHONPATH="$HOOK_DIR${PYTHONPATH:+:$PYTHONPATH}"
 # 第0轮（基线，123611077 已跑）：都不开 → AITER 拒=设备门(hip)、TRITON 拒=量化方案门。
 #   证据已落袋，且 [DUP-FIX] SUPPORT 日志确认两道门在全部 8 节点同款拒绝。
 # 第A轮（已证死，10-04 二进制证据）：aiter 的 MoE .so（module_moe.so 等）只含
-#   gfx936/gfx938 code object，无 gfx906 → 强开 FORCE_AITER 过门后 kernel 也加载不了。
+#   gfx938 code object，无 gfx906 → 强开 FORCE_AITER 过门后 kernel 也加载不了。
 # 第B轮（本轮）：开下面这条 → 赌 vllm 内置 TRITON fp8 MoE 核（反量化到 bf16 算，老卡可跑）。
 #   10-04 修正：FORCE_FP8 之前只改 RocmPlatform.supports_fp8，但 DCU 上 current_platform
 #   是 HCUPlatform（自带 supports_fp8=on_gfx938()），补丁落空 → dupfix 已加 hcu 补丁。

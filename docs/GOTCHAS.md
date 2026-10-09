@@ -30,13 +30,13 @@
 | 11 | `ImportError: set_deepep_auto_use_low_latency` | vllm_hcu 装 wheel 漏跑 post_install，磁盘补丁未落盘 | `python -m vllm_hcu.post_install` |
 | 12/14 | `Duplicate op name` / `operator registered multiple times` | 官方 deepseek_v4 与 vllm_hcu 实现撞车 | `patches/sitecustomize.py`（MODULE_EXCHANGE_MAP 补两条交换） |
 | 13 | 走 custom allreduce 时 `amdsmi_init` NameError | das185 环境缺 amdsmi 模块 | `--disable-custom-all-reduce`（先跑通，性能后议） |
-| 17 | AITER 拒 gfx906 | 老卡无 gfx936/938 code object | 换 FP8 后端走 vllm 内置 TRITON（`DUPFIX_FORCE_FP8=1`，仅老卡） |
+| 17 | AITER 拒 gfx906 | 老卡无 gfx938 code object | 换 FP8 后端走 vllm 内置 TRITON（`DUPFIX_FORCE_FP8=1`，仅老卡） |
 | 22 | MHC tilelang `k_dim must be 4/16/32/64` | `T.gemm(k_pack=2, use_tf32=True)` 布局不支持 | `export VLLM_HCU_USE_CUSTOM_OPS=0` |
 | 25 | KV cache 断言 `max(swa_page) <= max(full_mla_page)` | SWA 页硬编码 64 令牌，与 C4A KV block 冲突 | `--block-size 256` |
 | 26 | 16G 卡 profile 后 KV cache 不足 | 0.85 util 下仅剩 1.1 GiB | `--gpu-memory-utilization 0.95` + 降 `MAXLEN` |
 | 27 | worker 死、生成请求挂起 | flash_mla（CUDA 编译）不存在，调 raise 桩 | `export VLLM_HCU_DEEPSEEK_V4_ROCM_DECODE_FALLBACK=1` |
 
-## 安装（gfx936 单卡专属）
+## 安装（gfx938 单卡专属）
 
 | # | 坑 | 根因 | 修复 |
 |---|---|---|---|
@@ -45,14 +45,14 @@
 | C | sitecustomize `_Finder` 误判 | virtualenv 已有 `_virtualenv._Finder` | 改 `type(f) is _Finder` 精确判断 |
 | D | tilelang 误判 CUDA target | 残留 `CUDA_HOME=/usr/local/cuda` | 启动时 `unset CUDA_HOME CUDA_PATH` |
 | E | aiter fused_moe 签名不匹配 | vllm 传了 aiter 没有的 kwarg | `das185_patch.py` 补丁4 加 kwarg |
-| F | gfx936 MXFP4 门槛 | `_supports_quant_scheme` 只认 `on_gfx950()` | `das185_patch.py` 补丁3 放开 gfx936/938 |
+| F | gfx938 MXFP4 门槛 | `_supports_quant_scheme` 只认 `on_gfx950()` | `das185_patch.py` 补丁3 放开 gfx938 |
 | G | dummy 模型 KV 反量化 OOM | 权重太小，KV cache 预算被塞满 | `gpu_memory_utilization=0.15` 限制 KV 预算 |
 
 ## 两代软件栈对照（别混用）
 
 | 线 | DTK | torch | vllm_hcu | 适用架构 |
 |---|---|---|---|---|
-| das185（本框架） | 26.04 | 2.10.0+das.opt1 | 0.21.0+das.dtk2604 | gfx936/938 |
+| das185（本框架） | 26.04 | 2.10.0+das.opt1 | 0.21.0+das.dtk2604 | gfx938 |
 | das（旧） | 25.04 | 2.5.1+das.opt1 | 0.11.0+das | gfx906 |
 
 ## 遗留的集群特定项（换集群要改）

@@ -6,7 +6,7 @@
 # 用法：
 #   source scripts/install/env.sh && bash scripts/verify/check_hw.sh
 # 输出解读：
-#   gcnArchName = gfx936  → 本框架主测目标，✅
+#   gcnArchName = gfx938  → 本框架主测目标，✅
 #   gcnArchName = gfx906  → 老架构，部分算子不支持（见 SUPPORTED_HARDWARE.md）
 #   gcnArchName = gfx928  → 未实测，需人工补充结果
 # ============================================================================
@@ -84,4 +84,4 @@ echo "  DTKROOT = ${DTKROOT:-<未设置，先 source scripts/install/env.sh>}"
 
 echo ""
 echo "########## 探针结束 ##########"
-echo "对照 SUPPORTED_HARDWARE.md：gfx936=✅主测目标 / gfx906=老架构部分支持 / gfx928=未实测"
+echo "对照 SUPPORTED_HARDWARE.md：gfx938=✅主测目标 / gfx906=老架构部分支持 / gfx928=未实测"

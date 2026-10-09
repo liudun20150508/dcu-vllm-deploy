@@ -7,14 +7,14 @@
 | 文件 | 作用 | 状态 |
 |---|---|---|
 | `v4_fp4_dequant.hip` | DeepSeek-V4 FP4 专家权重反量化 kernel（e2m1fn 语义） | ✅ 反量化 GPU==CPU 验证通过，只是 fp4_gemm 的第一步 |
-| `vector_add.hip` | HIP 最简向量加法（gfx936 上手用） | ✅ 可跑 |
+| `vector_add.hip` | HIP 最简向量加法（gfx938 上手用） | ✅ 可跑 |
 | `dcu_kernel_lab.hip` | wave64 / 显存带宽 / 归约 / P2P 实验台 | ✅ 可跑 |
 
 ## 编译运行（DTK 环境）
 
 ```bash
 module load compiler/dtk/26.04
-hipcc -O2 --offload-arch=gfx936 -o v4_fp4_dequant v4_fp4_dequant.hip && ./v4_fp4_dequant
+hipcc -O2 --offload-arch=gfx938 -o v4_fp4_dequant v4_fp4_dequant.hip && ./v4_fp4_dequant
 # 预期： [PASS] FP4 反量化 kernel：4096 个值 GPU==CPU 全部一致
 ```
 
