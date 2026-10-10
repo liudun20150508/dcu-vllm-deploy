@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="440" viewBox="0 0 760 440" font-family="PingFang SC, Helvetica, Arial, sans-serif">
+<rect width="760" height="440" fill="#ffffff"/>
+<text x="78" y="24" font-size="15" font-weight="600">AllReduce 时间 vs 消息大小（N=4, transport=socket）</text>
+<text x="78" y="40" font-size="11" fill="#777">单 rank 最小耗时（3 次取 min）· 双向对数轴 · ccl-lab</text>
+<line x1="78.0" y1="46" x2="78.0" y2="388" stroke="#eee"/>
+<text x="78.0" y="404" font-size="10" fill="#666" text-anchor="middle">0.25KB</text>
+<line x1="184.4" y1="46" x2="184.4" y2="388" stroke="#eee"/>
+<text x="184.4" y="404" font-size="10" fill="#666" text-anchor="middle">1KB</text>
+<line x1="290.8" y1="46" x2="290.8" y2="388" stroke="#eee"/>
+<text x="290.8" y="404" font-size="10" fill="#666" text-anchor="middle">4KB</text>
+<line x1="397.2" y1="46" x2="397.2" y2="388" stroke="#eee"/>
+<text x="397.2" y="404" font-size="10" fill="#666" text-anchor="middle">16KB</text>
+<line x1="503.6" y1="46" x2="503.6" y2="388" stroke="#eee"/>
+<text x="503.6" y="404" font-size="10" fill="#666" text-anchor="middle">64KB</text>
+<line x1="610.0" y1="46" x2="610.0" y2="388" stroke="#eee"/>
+<text x="610.0" y="404" font-size="10" fill="#666" text-anchor="middle">256KB</text>
+<line x1="78" y1="370.2" x2="610" y2="370.2" stroke="#eee"/>
+<text x="70" y="373.2" font-size="10" fill="#666" text-anchor="end">0.1ms</text>
+<line x1="78" y1="215.9" x2="610" y2="215.9" stroke="#eee"/>
+<text x="70" y="218.9" font-size="10" fill="#666" text-anchor="end">1ms</text>
+<line x1="78" y1="61.6" x2="610" y2="61.6" stroke="#eee"/>
+<text x="70" y="64.6" font-size="10" fill="#666" text-anchor="end">10ms</text>
+<line x1="78" y1="388" x2="610" y2="388" stroke="#999"/>
+<line x1="78" y1="46" x2="78" y2="388" stroke="#999"/>
+<text x="344" y="428" font-size="11" fill="#444" text-anchor="middle">输入数据量（每个 rank）</text>
+<text x="16" y="217" font-size="11" fill="#444" text-anchor="middle" transform="rotate(-90 16 217)">时间</text>
+<path d="M78.0,377.7 L184.4,386.6 L290.8,366.3 L397.2,358.1 L503.6,302.5 L610.0,239.6" fill="none" stroke="#888" stroke-width="2"/>
+<circle cx="78.0" cy="377.7" r="2.6" fill="#888"/>
+<circle cx="184.4" cy="386.6" r="2.6" fill="#888"/>
+<circle cx="290.8" cy="366.3" r="2.6" fill="#888"/>
+<circle cx="397.2" cy="358.1" r="2.6" fill="#888"/>
+<circle cx="503.6" cy="302.5" r="2.6" fill="#888"/>
+<circle cx="610.0" cy="239.6" r="2.6" fill="#888"/>
+<rect x="628" y="55" width="10" height="10" fill="#888"/>
+<text x="644" y="64" font-size="11" fill="#333">allgather_ring</text>
+<path d="M78.0,355.6 L184.4,373.1 L290.8,388.0 L397.2,361.8 L503.6,290.4 L610.0,231.1" fill="none" stroke="#888" stroke-width="2"/>
+<circle cx="78.0" cy="355.6" r="2.6" fill="#888"/>
+<circle cx="184.4" cy="373.1" r="2.6" fill="#888"/>
+<circle cx="290.8" cy="388.0" r="2.6" fill="#888"/>
+<circle cx="397.2" cy="361.8" r="2.6" fill="#888"/>
+<circle cx="503.6" cy="290.4" r="2.6" fill="#888"/>
+<circle cx="610.0" cy="231.1" r="2.6" fill="#888"/>
+<rect x="628" y="72" width="10" height="10" fill="#888"/>
+<text x="644" y="81" font-size="11" fill="#333">alltoall_ring</text>
+<path d="M78.0,337.7 L184.4,336.7 L290.8,309.3 L397.2,258.3 L503.6,188.5 L610.0,103.0" fill="none" stroke="#e08b00" stroke-width="2"/>
+<circle cx="78.0" cy="337.7" r="2.6" fill="#e08b00"/>
+<circle cx="184.4" cy="336.7" r="2.6" fill="#e08b00"/>
+<circle cx="290.8" cy="309.3" r="2.6" fill="#e08b00"/>
+<circle cx="397.2" cy="258.3" r="2.6" fill="#e08b00"/>
+<circle cx="503.6" cy="188.5" r="2.6" fill="#e08b00"/>
+<circle cx="610.0" cy="103.0" r="2.6" fill="#e08b00"/>
+<rect x="628" y="89" width="10" height="10" fill="#e08b00"/>
+<text x="644" y="98" font-size="11" fill="#333">rabenseifner</text>
+<path d="M78.0,374.2 L184.4,358.2 L290.8,324.7 L397.2,224.7 L503.6,138.1 L610.0,46.0" fill="none" stroke="#2f9e44" stroke-width="2"/>
+<circle cx="78.0" cy="374.2" r="2.6" fill="#2f9e44"/>
+<circle cx="184.4" cy="358.2" r="2.6" fill="#2f9e44"/>
+<circle cx="290.8" cy="324.7" r="2.6" fill="#2f9e44"/>
+<circle cx="397.2" cy="224.7" r="2.6" fill="#2f9e44"/>
+<circle cx="503.6" cy="138.1" r="2.6" fill="#2f9e44"/>
+<circle cx="610.0" cy="46.0" r="2.6" fill="#2f9e44"/>
+<rect x="628" y="106" width="10" height="10" fill="#2f9e44"/>
+<text x="644" y="115" font-size="11" fill="#333">recdouble</text>
+<path d="M78.0,368.1 L184.4,371.0 L290.8,339.3 L397.2,281.3 L503.6,198.2 L610.0,111.0" fill="none" stroke="#888" stroke-width="2"/>
+<circle cx="78.0" cy="368.1" r="2.6" fill="#888"/>
+<circle cx="184.4" cy="371.0" r="2.6" fill="#888"/>
+<circle cx="290.8" cy="339.3" r="2.6" fill="#888"/>
+<circle cx="397.2" cy="281.3" r="2.6" fill="#888"/>
+<circle cx="503.6" cy="198.2" r="2.6" fill="#888"/>
+<circle cx="610.0" cy="111.0" r="2.6" fill="#888"/>
+<rect x="628" y="123" width="10" height="10" fill="#888"/>
+<text x="644" y="132" font-size="11" fill="#333">reducescatter_ring</text>
+<path d="M78.0,300.5 L184.4,319.7 L290.8,306.3 L397.2,245.2 L503.6,184.1 L610.0,100.6" fill="none" stroke="#d94a4a" stroke-width="2"/>
+<circle cx="78.0" cy="300.5" r="2.6" fill="#d94a4a"/>
+<circle cx="184.4" cy="319.7" r="2.6" fill="#d94a4a"/>
+<circle cx="290.8" cy="306.3" r="2.6" fill="#d94a4a"/>
+<circle cx="397.2" cy="245.2" r="2.6" fill="#d94a4a"/>
+<circle cx="503.6" cy="184.1" r="2.6" fill="#d94a4a"/>
+<circle cx="610.0" cy="100.6" r="2.6" fill="#d94a4a"/>
+<rect x="628" y="140" width="10" height="10" fill="#d94a4a"/>
+<text x="644" y="149" font-size="11" fill="#333">ring</text>
+<path d="M78.0,361.5 L184.4,355.6 L290.8,309.6 L397.2,228.1 L503.6,142.3 L610.0,50.0" fill="none" stroke="#3b7dd8" stroke-width="2"/>
+<circle cx="78.0" cy="361.5" r="2.6" fill="#3b7dd8"/>
+<circle cx="184.4" cy="355.6" r="2.6" fill="#3b7dd8"/>
+<circle cx="290.8" cy="309.6" r="2.6" fill="#3b7dd8"/>
+<circle cx="397.2" cy="228.1" r="2.6" fill="#3b7dd8"/>
+<circle cx="503.6" cy="142.3" r="2.6" fill="#3b7dd8"/>
+<circle cx="610.0" cy="50.0" r="2.6" fill="#3b7dd8"/>
+<rect x="628" y="157" width="10" height="10" fill="#3b7dd8"/>
+<text x="644" y="166" font-size="11" fill="#333">tree</text>
+</svg>
