@@ -46,11 +46,11 @@
 | DCU 架构 | 型号 | 单卡显存 | 每节点卡数 | 备注 |
 |---|---|---|---|---|
 | gfx906 | 深算一号 Z100L | 16 GB | **4（实测）** | 老架构，部分算子不支持 |
-| gfx938 | 海光 BW（C-3000，BW-1 队列） | 64 GB | 8 | 本框架实测目标 |
+| gfx936 | 海光 BW（C-3000，BW-1 队列） | 64 GB | 8 | 本框架实测目标 |
 | gfx928 | 深算二号 K100 | 96 GB（**需真机核实**） | 8 | 未实测，仅按公开规格推算 |
 
 **关键结论：不同 gfx 架构支持的 MoE 算子不同。** 这是本框架踩坑的核心：
-fp4/fp8 的 DeepSeek-V4 MoE 后端在 gfx950 系列才完整，gfx938 缺 kernel，
+fp4/fp8 的 DeepSeek-V4 MoE 后端在 gfx950 系列才完整，gfx936 缺 kernel，
 gfx906 缺得更多。适配前**先跑 `scripts/install/das185_check.py` 探针确认架构**。
 
 ### 软件栈（版本锁定，不要动）
@@ -73,14 +73,14 @@ gfx906 缺得更多。适配前**先跑 `scripts/install/das185_check.py` 探针
 | 集群 | 分区 | DCU | 集群总规模 | 每节点卡数 | 每节点 RDMA | RCCL 怎么走 |
 |---|---|---|---|---|---|---|
 | 老集群 | `kshdnormal` | gfx906 | **494 节点 / 1976 卡** | 4 卡 | **Mellanox mlx5 200G ×4** | 内置 IB verbs，实测仅 `mlx5_0` 能建 QP → `NCCL_IB_HCA=mlx5_0` |
-| 新集群 | `hx1hdnormal01` | gfx938 | **95 节点 / 760 卡** | 8 卡 | **自研 shca 400G ×4** | `NCCL_NET_PLUGIN=librccl-net-shca.so`（专有插件，向集群管理员索取，不入库） |
+| 新集群 | `hx1hdnormal01` | gfx936 | **95 节点 / 760 卡** | 8 卡 | **自研 shca 400G ×4** | `NCCL_NET_PLUGIN=librccl-net-shca.so`（专有插件，向集群管理员索取，不入库） |
 
 > 单节点 scha RDMA 设备数 = **4 张**（`shca_0..3`，link_layer InfiniBand，PORT_ACTIVE）；
 > 单节点 mlx5 设备数 = **4 张**（`mlx5_0..3`，200G IB）。选错网卡配置会直接退化/失败。
 
 ## 三、节点数估算（纯权重下限，按各架构实测卡数）
 
-| 模型 | gfx906 (16G×4=64G/节点) | gfx928 (96G×8=768G*/节点) | gfx938 (64G×8=512G/节点) |
+| 模型 | gfx906 (16G×4=64G/节点) | gfx928 (96G×8=768G*/节点) | gfx936 (64G×8=512G/节点) |
 |---|---|---|---|
 | Flash-0731 (156G) | 3 | 1 | 1 |
 | Flash-Base (275G) | 5 | 1 | 1 |
@@ -192,7 +192,7 @@ dcu-vllm-deploy/
 
 | 缺口 | 谁来解决 | 状态 |
 |---|---|---|
-| gfx938 版 DeepSeek-V4 MoE 算子（fp4 dtype + fp8 sorting bug） | 海光/曙光厂商（换新 aiter 或要补丁） | 未解决 |
+| gfx936 版 DeepSeek-V4 MoE 算子（fp4 dtype + fp8 sorting bug） | 海光/曙光厂商（换新 aiter 或要补丁） | 未解决 |
 | `libgcvm.so.17git`（海光 triton 依赖） | 海光驱动包 | 未解决 |
 | Pro-0813 fast-woa dtype（`VLLM_HCU_DEEPSEEK_V4_ROCM_FAST_WOA=0`） | 适配者复跑验证 | 修复已写、**未复跑** |
 | gfx928 真机规格（显存/算子支持） | 适配者 | 未核实 |
